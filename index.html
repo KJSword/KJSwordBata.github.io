@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="科技城存档 3.0 - 看见更远的城市，探索方块星海">
+    <title>科技城存档 3.0 · TECH CITY</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ============================================================
+           科技城存档 3.0 — Orbit 太空主题
+           ============================================================ */
+        :root {
+            --bg: #050508;
+            --text-primary: #FFFFFF;
+            --text-secondary: rgba(255, 255, 255, 0.66);
+            --text-muted: rgba(255, 255, 255, 0.40);
+            --glass-border: rgba(255, 255, 255, 0.09);
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-bg-hover: rgba(255, 255, 255, 0.055);
+            --accent: #A78BFA;
+            --accent-soft: rgba(167, 139, 250, 0.12);
+            --accent-border: rgba(167, 139, 250, 0.45);
+            --green-glow: #D9F6E2;
+            --font-main: 'Inter', 'Noto Sans SC', -apple-system, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', Consolas, monospace;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 84px;
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* 微弱星云底色 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background:
+                radial-gradient(700px 420px at 12% -6%, rgba(124, 58, 237, 0.10), transparent 65%),
+                radial-gradient(760px 460px at 88% -10%, rgba(124, 58, 237, 0.08), transparent 65%);
+        }
+
+        a { color: inherit; text-decoration: none; }
+        img { max-width: 100%; display: block; }
+        .container { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+        /* ===== 星空层 ===== */
+        #starfield {
+            position: absolute;
+            inset: 0;
+            z-index: 1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .star {
+            position: absolute;
+            border-radius: 50%;
+            background: #fff;
+            opacity: 0.5;
+            animation: twinkle var(--d, 4s) ease-in-out infinite alternate;
+        }
+        @keyframes twinkle {
+            from { opacity: calc(var(--o, 0.5) * 0.2); }
+            to   { opacity: var(--o, 0.5); }
+        }
+        .sparkle {
+            position: absolute;
+            background: #E4C7FF;
+            clip-path: polygon(50% 0, 60% 40%, 100% 50%, 60% 60%, 50% 100%, 40% 60%, 0 50%, 40% 40%);
+            filter: drop-shadow(0 0 6px rgba(216, 180, 254, 0.9));
+            animation: twinkle var(--d, 5s) ease-in-out infinite alternate;
+        }
+
+        /* ===== 导航栏 ===== */
+        .navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 1000;
+            transition: background 0.35s ease, border-color 0.35s ease, backdrop-filter 0.35s ease;
+            border-bottom: 1px solid transparent;
+        }
+        .navbar.scrolled {
+            background: rgba(6, 6, 12, 0.78);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom-color: rgba(255, 255, 255, 0.07);
+        }
+        .navbar .container {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            height: 66px;
+        }
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            flex-shrink: 0;
+        }
+        .navbar-brand svg { width: 24px; height: 24px; }
+        .navbar-brand .name {
+            font-weight: 600;
+            font-size: 1.02rem;
+            letter-spacing: -0.01em;
+        }
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+            list-style: none;
+            margin: 0 auto;
+        }
+        .nav-menu a {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.72);
+            transition: color 0.25s ease;
+        }
+        .nav-menu a:hover, .nav-menu a.active { color: #fff; }
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+
+        /* 通用按钮（Orbit 风格小圆角） */
+        .btn-o {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 9px 18px;
+            border-radius: 9px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            font-family: var(--font-main);
+            cursor: pointer;
+            transition: all 0.25s ease;
+            border: 1px solid transparent;
+            white-space: nowrap;
+        }
+        .btn-o.light {
+            background: #fff;
+            color: #0a0a12;
+        }
+        .btn-o.light:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(255,255,255,0.18); }
+        .btn-o.ghost {
+            background: rgba(8, 8, 16, 0.55);
+            color: #fff;
+            border-color: rgba(255, 255, 255, 0.28);
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+        }
+        .btn-o.ghost:hover { border-color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.06); }
+        .btn-o.lg { padding: 12px 26px; font-size: 0.92rem; border-radius: 11px; }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            margin-left: auto;
+        }
+        .hamburger span {
+            width: 22px; height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+        .hamburger.active span:nth-child(2) { opacity: 0; }
+        .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+        /* ===== 英雄区 ===== */
+        .hero {
+            position: relative;
+            min-height: max(100vh, 700px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            background: #020204;
+        }
+        .hero-inner {
+            position: relative;
+            z-index: 5;
+            text-align: center;
+            padding: 128px 24px 0;
+            max-width: 880px;
+        }
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 5px 14px 5px 6px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            font-size: 0.76rem;
+            color: rgba(255, 255, 255, 0.85);
+            background: rgba(255, 255, 255, 0.02);
+            transition: border-color 0.3s ease, background 0.3s ease;
+            margin-bottom: 30px;
+        }
+        .hero-badge:hover { border-color: rgba(255,255,255,0.45); background: rgba(255,255,255,0.05); }
+        .hero-badge .pill-new {
+            background: #fff;
+            color: #0a0a12;
+            font-size: 0.66rem;
+            font-weight: 700;
+            padding: 2.5px 9px;
+            border-radius: 999px;
+            letter-spacing: 0.02em;
+        }
+        .hero-badge .arrow { opacity: 0.7; }
+
+        .hero h1 {
+            font-size: clamp(2.4rem, 5.8vw, 4.2rem);
+            font-weight: 700;
+            line-height: 1.14;
+            letter-spacing: -0.025em;
+            margin-bottom: 18px;
+            text-shadow: 0 0 60px rgba(167, 139, 250, 0.25);
+        }
+        .hero-sub {
+            font-size: clamp(0.95rem, 1.6vw, 1.06rem);
+            color: rgba(255, 255, 255, 0.58);
+            max-width: 620px;
+            margin: 0 auto 26px;
+            line-height: 1.8;
+        }
+        .hero-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .hero-tags {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 22px;
+        }
+        .hero-tags .tag {
+            font-size: 0.72rem;
+            color: rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+            padding: 4px 13px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(4px);
+        }
+
+        /* 行星插画 */
+        .hero-art {
+            position: absolute;
+            bottom: -2px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100%;
+            min-width: 900px;
+            height: 62%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .hero-art svg { width: 100%; height: 100%; display: block; }
+        .flame-glow { animation: flamePulse 7s ease-in-out infinite alternate; transform-origin: center bottom; }
+        @keyframes flamePulse {
+            from { opacity: 0.75; }
+            to   { opacity: 1; }
+        }
+        .float-a { animation: floaty 7s ease-in-out infinite alternate; transform-box: fill-box; }
+        .float-b { animation: floaty 9s ease-in-out infinite alternate-reverse; transform-box: fill-box; }
+        .float-c { animation: floaty 11s ease-in-out infinite alternate; transform-box: fill-box; }
+        @keyframes floaty {
+            from { transform: translateY(-7px); }
+            to   { transform: translateY(9px); }
+        }
+
+        .hero-fade {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 140px;
+            z-index: 4;
+            background: linear-gradient(180deg, transparent, var(--bg));
+            pointer-events: none;
+        }
+
+        /* ===== 区块通用 ===== */
+        .section { padding: 110px 0; position: relative; }
+        .section-header { text-align: center; margin-bottom: 46px; }
+        .section-tag {
+            display: inline-block;
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+            background: var(--accent-soft);
+            border: 1px solid rgba(167, 139, 250, 0.25);
+            border-radius: 999px;
+            padding: 5px 15px;
+            margin-bottom: 16px;
+        }
+        .section-header h2 {
+            font-size: clamp(1.55rem, 3vw, 2.1rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+        }
+        .section-header p { color: var(--text-muted); font-size: 0.94rem; }
+
+        /* ===== 搜索 ===== */
+        .search-wrap { max-width: 640px; margin: 0 auto 42px; position: relative; }
+        .search-wrap input {
+            width: 100%;
+            padding: 14px 22px;
+            font-size: 0.95rem;
+            font-family: var(--font-main);
+            color: #fff;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 14px;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .search-wrap input::placeholder { color: rgba(255, 255, 255, 0.35); }
+        .search-wrap input:focus {
+            border-color: var(--accent-border);
+            box-shadow: 0 0 0 4px rgba(167, 139, 250, 0.12);
+        }
+        .search-results {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0; right: 0;
+            background: rgba(12, 12, 22, 0.97);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            max-height: 340px;
+            overflow-y: auto;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.7);
+            display: none;
+            padding: 6px 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+        }
+        .search-results.active { display: block; }
+        .search-result-item {
+            display: block;
+            padding: 11px 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+        }
+        .search-result-item:last-child { border-bottom: none; }
+        .search-result-item:hover { background: rgba(255, 255, 255, 0.05); }
+        .search-result-item .title { display: block; font-weight: 500; font-size: 0.9rem; color: #fff; }
+        .search-result-item .sub { display: block; font-size: 0.72rem; color: var(--text-muted); font-family: var(--font-mono); margin-top: 1px; }
+        .search-result-item .match { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; max-height: 2.7em; overflow: hidden; }
+        .search-result-empty { padding: 22px; text-align: center; color: var(--text-muted); font-size: 0.88rem; }
+
+        /* ===== 公告列表 ===== */
+        .announce-list {
+            display: grid;
+            gap: 14px;
+            max-width: 760px;
+            margin: 0 auto;
+        }
+        .announce-card {
+            display: block;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px 26px;
+            transition: all 0.3s ease;
+        }
+        .announce-card:hover {
+            border-color: var(--accent-border);
+            background: var(--card-bg-hover);
+            transform: translateY(-3px);
+        }
+        .announce-card .meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            letter-spacing: 0.05em;
+        }
+        .announce-card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 6px 0 6px;
+            transition: color 0.3s;
+        }
+        .announce-card:hover h3 { color: var(--accent); }
+        .announce-card .excerpt {
+            color: var(--text-secondary);
+            font-size: 0.86rem;
+            line-height: 1.7;
+        }
+        .announce-card .more {
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        /* ===== 存档 & 客户端 ===== */
+        .archive-grid {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 26px;
+            max-width: 980px;
+            margin: 0 auto;
+            align-items: stretch;
+        }
+        .panel {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 30px 28px;
+        }
+        .preview-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 340px;
+            background:
+                radial-gradient(340px 240px at 50% 30%, rgba(167, 139, 250, 0.10), transparent 70%),
+                var(--card-bg);
+        }
+        .preview-panel .planet-ico { font-size: 4.6rem; line-height: 1; margin-bottom: 16px; }
+        .preview-panel .t {
+            font-weight: 700;
+            font-size: 1.35rem;
+            letter-spacing: 0.12em;
+        }
+        .preview-panel .s { color: var(--text-muted); font-size: 0.8rem; font-family: var(--font-mono); margin-top: 6px; }
+        .preview-panel .hint { color: var(--text-muted); font-size: 0.72rem; opacity: 0.6; margin-top: 12px; }
+
+        .info-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 16px; }
+        .info-tags .tag {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 999px;
+            padding: 4px 12px;
+        }
+        .info-tags .tag strong { color: var(--accent); font-weight: 600; }
+        .panel h3 { font-size: 1.25rem; font-weight: 700; margin-bottom: 8px; }
+        .panel .desc { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.8; margin-bottom: 16px; }
+        .feature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-bottom: 20px; }
+        .feature-grid .item {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            border-radius: 10px;
+            padding: 8px 12px;
+        }
+        .dl-label { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 9px; }
+        .pan-list { display: grid; gap: 9px; }
+        .pan-card {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 13px;
+            cursor: pointer;
+            transition: all 0.28s ease;
+        }
+        .pan-card:hover {
+            border-color: var(--accent-border);
+            background: rgba(167, 139, 250, 0.06);
+            transform: translateX(3px);
+        }
+        .pan-card .icon { font-size: 1.45rem; }
+        .pan-card .info { display: flex; flex-direction: column; }
+        .pan-card .name { font-weight: 600; font-size: 0.88rem; }
+        .pan-card .status { font-size: 0.7rem; color: var(--text-muted); }
+        .pan-card .action { margin-left: auto; font-size: 0.76rem; color: var(--accent); font-weight: 500; }
+        .pan-card.disabled { opacity: 0.35; pointer-events: none; }
+
+        /* ===== 适用场景 ===== */
+        .scenario-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            max-width: 1040px;
+            margin: 0 auto;
+        }
+        .scenario-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 18px;
+            padding: 30px 22px;
+            text-align: center;
+            transition: all 0.35s ease;
+        }
+        .scenario-card:hover {
+            border-color: var(--accent-border);
+            background: var(--card-bg-hover);
+            transform: translateY(-5px);
+        }
+        .scenario-card .icon { font-size: 2.4rem; display: block; margin-bottom: 13px; }
+        .scenario-card h3 { font-size: 0.98rem; font-weight: 600; margin-bottom: 7px; }
+        .scenario-card p { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.75; }
+
+        /* ===== 使用说明 / 时间线 ===== */
+        .guide-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 26px;
+            max-width: 980px;
+            margin: 0 auto 64px;
+        }
+        .guide-grid .lead { color: var(--text-secondary); font-size: 0.92rem; line-height: 2; }
+        .guide-grid .lead strong { color: #fff; }
+        .permit-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 16px; }
+        .permit-tags .tag {
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 999px;
+            padding: 5px 13px;
+        }
+        .timeline {
+            position: relative;
+            max-width: 780px;
+            margin: 0 auto;
+            padding-left: 34px;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px; top: 10px; bottom: 10px;
+            width: 2px;
+            border-radius: 2px;
+            background: linear-gradient(180deg, var(--accent) 0%, rgba(167, 139, 250, 0.05) 100%);
+        }
+        .timeline-item { position: relative; padding-bottom: 20px; }
+        .timeline-item:last-child { padding-bottom: 0; }
+        .timeline-item .dot {
+            position: absolute;
+            left: -34px; top: 10px;
+            width: 16px; height: 16px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 3px solid rgba(167, 139, 250, 0.25);
+            box-shadow: 0 0 12px rgba(167, 139, 250, 0.5);
+        }
+        .timeline-card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 15px;
+            padding: 18px 22px;
+            transition: all 0.3s ease;
+        }
+        .timeline-card:hover { border-color: var(--accent-border); transform: translateX(3px); }
+        .timeline-card .head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+        .timeline-card .ver { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+        .timeline-card .ver strong { font-size: 1rem; font-weight: 700; }
+        .timeline-card .badge {
+            font-size: 0.66rem;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 999px;
+            background: var(--accent-soft);
+            border: 1px solid rgba(167, 139, 250, 0.3);
+            color: var(--accent);
+        }
+        .timeline-card .badge.warn {
+            background: rgba(255, 96, 96, 0.08);
+            border-color: rgba(255, 96, 96, 0.3);
+            color: #FF8A80;
+        }
+        .timeline-card .year { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); }
+        .timeline-card p { color: var(--text-secondary); font-size: 0.86rem; line-height: 1.85; }
+        .timeline-card .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 11px; }
+        .timeline-card .meta span {
+            font-size: 0.68rem;
+            color: var(--text-muted);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 8px;
+            padding: 3px 10px;
+        }
+        .timeline-card .meta span.label {
+            color: var(--accent);
+            background: var(--accent-soft);
+            border-color: rgba(167, 139, 250, 0.3);
+        }
+
+        /* ===== 团队 ===== */
+        .team-card {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 38px 40px;
+        }
+        .team-card .content { color: var(--text-secondary); line-height: 2.05; font-size: 0.92rem; }
+        .team-card .content p { margin-bottom: 14px; }
+        .team-card .hl { color: var(--accent); font-weight: 600; }
+        .team-card .st { color: #fff; font-weight: 600; }
+        .team-card .quote {
+            border-left: 3px solid var(--accent);
+            padding-left: 18px;
+            margin: 18px 0;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+        .team-card .closing {
+            color: #fff; font-weight: 500;
+            margin-top: 14px; padding-top: 14px;
+            border-top: 1px solid var(--glass-border);
+        }
+        .team-tags {
+            display: flex; flex-wrap: wrap; gap: 8px;
+            margin-top: 22px; padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+        .team-tags .tag {
+            font-size: 0.74rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            border-radius: 999px;
+            padding: 5px 14px;
+        }
+
+        /* ===== 图鉴占位 ===== */
+        .gallery-panel {
+            max-width: 640px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 62px 30px;
+        }
+        .gallery-panel .icon { font-size: 4.4rem; display: block; margin-bottom: 16px; }
+        .gallery-panel h3 { font-size: 1.35rem; font-weight: 700; margin-bottom: 8px; }
+        .gallery-panel p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.85; max-width: 440px; margin: 0 auto; }
+        .gallery-panel .badge {
+            display: inline-block;
+            margin-top: 16px;
+            font-size: 0.76rem;
+            color: var(--accent);
+            border: 1.5px solid var(--accent-border);
+            border-radius: 999px;
+            padding: 4px 18px;
+            letter-spacing: 0.08em;
+        }
+
+        /* ===== 赞助 ===== */
+        .sponsor-card {
+            max-width: 520px;
+            margin: 0 auto;
+            text-align: center;
+            padding: 44px 36px;
+        }
+        .sponsor-card .icon { font-size: 3.4rem; display: block; margin-bottom: 14px; }
+        .sponsor-card h3 { font-size: 1.3rem; font-weight: 700; margin-bottom: 9px; }
+        .sponsor-card p { color: var(--text-secondary); font-size: 0.9rem; line-height: 1.85; margin-bottom: 22px; }
+        .sponsor-card .note { font-size: 0.72rem; color: var(--text-muted); margin: 14px 0 0; }
+
+        /* ===== 页脚 ===== */
+        .footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.07);
+            padding: 60px 0 40px;
+            background: #040408;
+            position: relative;
+            z-index: 5;
+        }
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            margin-bottom: 44px;
+        }
+        .footer-col h4 { font-size: 0.9rem; font-weight: 600; margin-bottom: 14px; }
+        .footer-col ul { list-style: none; display: grid; gap: 9px; }
+        .footer-col a {
+            font-size: 0.82rem;
+            color: var(--text-muted);
+            transition: color 0.25s;
+        }
+        .footer-col a:hover { color: #fff; }
+        .footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 24px;
+            text-align: center;
+        }
+        .footer-bottom p { font-size: 0.78rem; color: var(--text-muted); }
+        .footer-bottom a { color: var(--text-secondary); }
+        .footer-bottom a:hover { color: #fff; }
+        .footer-bottom .tiny { font-size: 0.62rem; opacity: 0.45; margin-top: 6px; }
+
+        /* ===== 回到顶部 ===== */
+        .back-top {
+            position: fixed;
+            right: 26px; bottom: 26px;
+            width: 44px; height: 44px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            color: #fff;
+            font-size: 1.1rem;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(12px);
+            transition: all 0.35s ease;
+            z-index: 900;
+        }
+        .back-top.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+        .back-top:hover { background: rgba(255, 255, 255, 0.16); }
+
+        /* ===== 协议模态框 ===== */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 2, 6, 0.78);
+            backdrop-filter: blur(10px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            width: 100%;
+            max-width: 680px;
+            max-height: 86vh;
+            display: flex;
+            flex-direction: column;
+            background: #0D0C17;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            box-shadow: 0 30px 90px rgba(0, 0, 0, 0.8);
+            animation: modalIn 0.3s ease;
+        }
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(18px) scale(0.98); }
+            to   { opacity: 1; transform: none; }
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 20px 26px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .modal-header h3 { font-size: 1rem; font-weight: 600; }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.6rem;
+            line-height: 1;
+            cursor: pointer;
+            transition: color 0.25s;
+        }
+        .modal-close:hover { color: #fff; }
+        .modal-body {
+            padding: 22px 26px;
+            overflow-y: auto;
+            font-size: 0.86rem;
+            line-height: 1.9;
+            color: var(--text-secondary);
+        }
+        .modal-body h4 {
+            color: #fff;
+            font-size: 0.92rem;
+            margin: 18px 0 8px;
+        }
+        .modal-body h3 { color: #fff; font-size: 1rem; margin: 20px 0 8px; }
+        .modal-body p { margin-bottom: 10px; }
+        .modal-body ul { padding-left: 20px; margin-bottom: 12px; }
+        .modal-body li { margin-bottom: 4px; }
+        .modal-body strong { color: rgba(255, 255, 255, 0.88); }
+        .modal-body hr { border: none; border-top: 1px solid rgba(255, 255, 255, 0.09); margin: 18px 0; }
+        .modal-footer {
+            padding: 16px 26px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .agreement-check {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            margin-bottom: 14px;
+        }
+        .agreement-check input { accent-color: var(--accent); width: 15px; height: 15px; cursor: pointer; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-cancel {
+            padding: 9px 18px;
+            font-size: 0.82rem;
+            font-family: var(--font-main);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            border-radius: 9px;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.25s;
+        }
+        .btn-cancel:hover { background: rgba(255, 255, 255, 0.1); }
+        .btn-confirm {
+            padding: 9px 18px;
+            font-size: 0.82rem;
+            font-family: var(--font-main);
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 9px;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: not-allowed;
+            transition: all 0.25s;
+        }
+        .btn-confirm.enabled {
+            background: #fff;
+            color: #0a0a12;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        .btn-confirm.enabled:hover { box-shadow: 0 6px 24px rgba(255, 255, 255, 0.2); }
+
+        /* ===== 滚动入场 ===== */
+        .reveal { opacity: 0; transform: translateY(26px); transition: opacity 0.8s ease, transform 0.8s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)); }
+        .reveal.visible { opacity: 1; transform: none; }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.32s; }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 1024px) {
+            .scenario-grid { grid-template-columns: 1fr 1fr; }
+            .nav-menu { gap: 18px; }
+        }
+        @media (max-width: 860px) {
+            .nav-menu, .nav-actions { display: none; }
+            .hamburger { display: flex; }
+            .nav-menu.open {
+                display: flex;
+                position: fixed;
+                top: 66px; left: 0; right: 0;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+                background: rgba(8, 8, 16, 0.97);
+                backdrop-filter: blur(20px);
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                padding: 10px 18px 16px;
+                margin: 0;
+            }
+            .nav-menu.open li { border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+            .nav-menu.open li:last-child { border-bottom: none; }
+            .nav-menu.open a {
+                display: block;
+                padding: 13px 6px;
+                font-size: 0.92rem;
+            }
+            .archive-grid, .guide-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 640px) {
+            .section { padding: 80px 0; }
+            .hero-inner { padding-top: 124px; }
+            .hero-art { min-width: 760px; height: 56%; }
+            .scenario-grid { grid-template-columns: 1fr; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; gap: 22px; }
+            .team-card { padding: 26px 20px; }
+            .panel { padding: 24px 20px; }
+            .announce-card { padding: 17px 19px; }
+            .modal-box { max-height: 92vh; border-radius: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 导航栏 ===== -->
+    <header class="navbar" id="navbar">
+        <div class="container">
+            <a href="index.html" class="navbar-brand" aria-label="科技城存档首页">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <circle cx="12" cy="12" r="6.2" fill="#E9E4F5"/>
+                    <ellipse cx="12" cy="12" rx="10.4" ry="3.4" stroke="#B9A8E8" stroke-width="1.3" transform="rotate(-18 12 12)"/>
+                </svg>
+                <span class="name">科技城存档</span>
+            </a>
+            <button class="hamburger" id="hamburger" aria-label="切换菜单">
+                <span></span><span></span><span></span>
+            </button>
+            <nav aria-label="主导航">
+                <ul class="nav-menu" id="nav-menu">
+                    <li><a href="#announcements">公告</a></li>
+                    <li><a href="#archive">存档</a></li>
+                    <li><a href="#client">客户端</a></li>
+                    <li><a href="#scenarios">场景</a></li>
+                    <li><a href="#guide">说明</a></li>
+                    <li><a href="#team">团队</a></li>
+                    <li><a href="#gallery">图鉴</a></li>
+                    <li><a href="#sponsor">赞助</a></li>
+                </ul>
+            </nav>
+            <div class="nav-actions">
+                <a href="#guide" class="btn-o ghost">使用说明</a>
+                <a href="#archive" class="btn-o light">免费下载</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===== 英雄区 ===== -->
+    <section class="hero" id="top">
+        <div id="starfield"></div>
+
+        <div class="hero-inner">
+            <a href="announcement.html?id=14" class="hero-badge reveal">
+                <span class="pill-new">New</span>
+                《科技市》更新继续，螺旋科城基金会正式成立
+                <span class="arrow">→</span>
+            </a>
+            <h1 class="reveal reveal-delay-1">看见更远的城市<br>探索方块星海</h1>
+            <p class="hero-sub reveal reveal-delay-2">一套结构完整、功能分区清晰的现代科技城市框架。拥有完善的道路系统、功能建筑群和基础设施预留，可作为服务器主城、RPG 地图底图或建筑展示的完美基础。</p>
+            <div class="hero-buttons reveal reveal-delay-2">
+                <a href="#archive" class="btn-o light lg">🚀 免费下载存档</a>
+                <a href="#announcements" class="btn-o ghost lg">📰 最新动态</a>
+            </div>
+            <div class="hero-tags reveal reveal-delay-3">
+                <span class="tag">📐 城市规划</span>
+                <span class="tag">🛣️ 完整路网</span>
+                <span class="tag">🏗️ 功能分区</span>
+                <span class="tag">⚡ 红石预留</span>
+                <span class="tag">🎨 现代风格</span>
+            </div>
+        </div>
+
+        <!-- 行星插画（复刻视频：绿焰光环行星 + 紫色星云 + 卫星） -->
+        <div class="hero-art" aria-hidden="true">
+            <svg viewBox="0 0 1440 700" preserveAspectRatio="xMidYMax slice">
+                <defs>
+                    <linearGradient id="flameGrad" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="#EAFCEF"/>
+                        <stop offset="60%" stop-color="#D6F5E0"/>
+                        <stop offset="100%" stop-color="#C2ECD1"/>
+                    </linearGradient>
+                    <radialGradient id="planetGrad" cx="46%" cy="36%" r="72%">
+                        <stop offset="0%" stop-color="#2E2549"/>
+                        <stop offset="52%" stop-color="#1C1531"/>
+                        <stop offset="100%" stop-color="#0B0818"/>
+                    </radialGradient>
+                    <radialGradient id="cloudGrad" cx="42%" cy="40%" r="62%">
+                        <stop offset="0%" stop-color="#9B6CFF"/>
+                        <stop offset="55%" stop-color="#7C3AED"/>
+                        <stop offset="100%" stop-color="#4C1D95"/>
+                    </radialGradient>
+                    <radialGradient id="cloudDark" cx="50%" cy="45%" r="60%">
+                        <stop offset="0%" stop-color="#5B21B6"/>
+                        <stop offset="100%" stop-color="#2E1065"/>
+                    </radialGradient>
+                    <radialGradient id="moonGrad" cx="38%" cy="34%" r="70%">
+                        <stop offset="0%" stop-color="#3A3157"/>
+                        <stop offset="100%" stop-color="#171226"/>
+                    </radialGradient>
+                    <filter id="softBlur" x="-30%" y="-30%" width="160%" height="160%">
+                        <feGaussianBlur stdDeviation="14"/>
+                    </filter>
+                    <filter id="bigBlur" x="-60%" y="-60%" width="220%" height="220%">
+                        <feGaussianBlur stdDeviation="30"/>
+                    </filter>
+                    <!-- 火焰舌组合：基础质量 + 向外倾斜的椭圆舌 -->
+                    <g id="tongues">
+                        <ellipse cx="720" cy="850" rx="830" ry="260"/>
+                        <ellipse cx="720" cy="720" rx="690" ry="170"/>
+                        <ellipse cx="170" cy="748" rx="62" ry="150" transform="rotate(-14 170 748)"/>
+                        <ellipse cx="262" cy="703" rx="66" ry="158" transform="rotate(-12 262 703)"/>
+                        <ellipse cx="356" cy="657" rx="70" ry="165" transform="rotate(-10 356 657)"/>
+                        <ellipse cx="452" cy="632" rx="72" ry="170" transform="rotate(-8 452 632)"/>
+                        <ellipse cx="545" cy="592" rx="74" ry="172" transform="rotate(-6 545 592)"/>
+                        <ellipse cx="640" cy="556" rx="76" ry="176" transform="rotate(-4 640 556)"/>
+                        <ellipse cx="735" cy="544" rx="78" ry="178"/>
+                        <ellipse cx="838" cy="566" rx="76" ry="176" transform="rotate(4 838 566)"/>
+                        <ellipse cx="942" cy="608" rx="74" ry="172" transform="rotate(6 942 608)"/>
+                        <ellipse cx="1042" cy="648" rx="72" ry="170" transform="rotate(8 1042 648)"/>
+                        <ellipse cx="1140" cy="681" rx="70" ry="165" transform="rotate(10 1140 681)"/>
+                        <ellipse cx="1232" cy="728" rx="66" ry="158" transform="rotate(12 1232 728)"/>
+                        <ellipse cx="1318" cy="764" rx="62" ry="150" transform="rotate(14 1318 764)"/>
+                        <ellipse cx="1392" cy="788" rx="56" ry="140" transform="rotate(16 1392 788)"/>
+                    </g>
+                </defs>
+
+                <!-- 绿色光焰（光晕层 + 主体） -->
+                <use href="#tongues" class="flame-glow" filter="url(#bigBlur)" fill="#CBF2D6" opacity="0.7"/>
+                <use href="#tongues" fill="url(#flameGrad)"/>
+
+                <!-- 紫色星云（左下 / 右下角） -->
+                <g filter="url(#softBlur)">
+                    <circle cx="30" cy="670" r="130" fill="url(#cloudDark)"/>
+                    <circle cx="150" cy="730" r="115" fill="url(#cloudGrad)"/>
+                    <circle cx="-10" cy="580" r="80" fill="url(#cloudGrad)" opacity="0.8"/>
+                    <circle cx="255" cy="740" r="105" fill="url(#cloudDark)"/>
+                    <circle cx="1412" cy="670" r="130" fill="url(#cloudDark)"/>
+                    <circle cx="1295" cy="730" r="115" fill="url(#cloudGrad)"/>
+                    <circle cx="1452" cy="590" r="80" fill="url(#cloudGrad)" opacity="0.8"/>
+                    <circle cx="1185" cy="745" r="105" fill="url(#cloudDark)"/>
+                </g>
+
+                <!-- 行星环（后层） -->
+                <g transform="rotate(-10 720 590)" opacity="0.9">
+                    <ellipse cx="720" cy="590" rx="280" ry="77" fill="none" stroke="#9AA0B4" stroke-width="13" opacity="0.32"/>
+                    <ellipse cx="720" cy="590" rx="256" ry="69" fill="none" stroke="#C6CBD8" stroke-width="8" opacity="0.5"/>
+                    <ellipse cx="720" cy="590" rx="232" ry="60" fill="none" stroke="#878DA0" stroke-width="5" opacity="0.4"/>
+                </g>
+
+                <!-- 行星本体 -->
+                <g class="float-b">
+                    <circle cx="720" cy="590" r="115" fill="url(#planetGrad)"/>
+                    <!-- 绿色 rim light -->
+                    <path d="M 620 524 A 115 115 0 0 1 820 524" fill="none" stroke="#BFF0CF" stroke-width="5" opacity="0.5" filter="url(#softBlur)"/>
+                    <ellipse cx="678" cy="566" rx="26" ry="15" fill="#241C3E" opacity="0.9"/>
+                    <ellipse cx="752" cy="612" rx="36" ry="19" fill="#130F24" opacity="0.9"/>
+                    <ellipse cx="706" cy="648" rx="22" ry="11" fill="#241C3E" opacity="0.85"/>
+                    <ellipse cx="652" cy="512" rx="17" ry="10" fill="#2C2348" opacity="0.9"/>
+                </g>
+
+                <!-- 行星环（前层） -->
+                <g transform="rotate(-10 720 590)">
+                    <path d="M 440 590 A 280 77 0 0 0 1000 590" fill="none" stroke="#9AA0B4" stroke-width="13" opacity="0.5"/>
+                    <path d="M 464 590 A 256 69 0 0 0 976 590" fill="none" stroke="#C6CBD8" stroke-width="8" opacity="0.66"/>
+                    <path d="M 488 590 A 232 60 0 0 0 952 590" fill="none" stroke="#878DA0" stroke-width="5" opacity="0.55"/>
+                </g>
+
+                <!-- 漂浮小天体 -->
+                <circle class="float-a" cx="470" cy="515" r="13" fill="url(#moonGrad)"/>
+                <circle class="float-c" cx="955" cy="488" r="10" fill="url(#moonGrad)"/>
+                <circle class="float-b" cx="585" cy="452" r="7" fill="url(#moonGrad)"/>
+                <circle class="float-a" cx="868" cy="428" r="9" fill="url(#moonGrad)"/>
+                <circle class="float-c" cx="1062" cy="402" r="6" fill="url(#moonGrad)"/>
+
+                <!-- 卫星（左） -->
+                <g class="float-c" transform="translate(342 492)">
+                    <rect x="-38" y="-10" width="26" height="20" rx="2" fill="#4A5890"/>
+                    <rect x="12" y="-10" width="26" height="20" rx="2" fill="#4A5890"/>
+                    <line x1="-12" y1="0" x2="12" y2="0" stroke="#7585B8" stroke-width="2.6"/>
+                    <rect x="-10" y="-8" width="20" height="16" rx="3" fill="#332E50"/>
+                    <circle cx="0" cy="-14" r="2.6" fill="#9AA6CE"/>
+                </g>
+                <!-- 卫星（右） -->
+                <g class="float-a" transform="translate(1080 528) rotate(12)">
+                    <rect x="-34" y="-9" width="22" height="18" rx="2" fill="#42507F"/>
+                    <rect x="12" y="-9" width="22" height="18" rx="2" fill="#42507F"/>
+                    <line x1="-11" y1="0" x2="11" y2="0" stroke="#7585B8" stroke-width="2.4"/>
+                    <rect x="-9" y="-7" width="18" height="14" rx="3" fill="#2E2A48"/>
+                    <circle cx="0" cy="-12" r="2.4" fill="#9AA6CE"/>
+                </g>
+            </svg>
+        </div>
+        <div class="hero-fade"></div>
+    </section>
+
+    <main>
+        <!-- ===== 公告 ===== -->
+        <section class="section" id="announcements">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Blog · Announcements</span>
+                    <h2>所有公告</h2>
+                    <p>科技城项目的最新动态与重要通知</p>
+                </div>
+
+                <div class="search-wrap reveal">
+                    <input type="text" id="search-input" placeholder="🔍 搜索公告与站内文件…" autocomplete="off">
+                    <div class="search-results" id="search-results"></div>
+                </div>
+
+                <div class="announce-list" id="announce-list">
+                    <!-- 由 data/announcements.js 动态渲染 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 存档详情 ===== -->
+        <section class="section" id="archive">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Archive</span>
+                    <h2>🏙️ 科技城存档</h2>
+                    <p>一个为地图作者和服务器服主准备的专业级基础底图</p>
+                </div>
+
+                <div class="archive-grid">
+                    <div class="panel preview-panel reveal">
+                        <span class="planet-ico">🪐</span>
+                        <div class="t">TECH CITY</div>
+                        <div class="s">科技城 · 基础底图 v1.0</div>
+                        <div class="hint">预览图即将上线</div>
+                    </div>
+
+                    <div class="panel reveal reveal-delay-1">
+                        <div class="info-tags">
+                            <span class="tag">📦 版本：<strong>1.20.4</strong></span>
+                            <span class="tag">💾 大小：<strong>186 MB</strong></span>
+                            <span class="tag">⬇️ 下载：<strong>3,847</strong></span>
+                        </div>
+                        <h3>科技城基础底图</h3>
+                        <p class="desc">这是一张<strong style="color:#fff;">半成品城市框架地图</strong>，包含完整城市道路网络、功能分区规划和红石基础设施预留。</p>
+                        <div class="feature-grid">
+                            <div class="item">🛣️ 完整城市路网与街区划分</div>
+                            <div class="item">🏗️ 多个功能建筑框架</div>
+                            <div class="item">⚡ 红石管线预留接口</div>
+                            <div class="item">🎨 现代科技风格</div>
+                            <div class="item">📐 坐标标注与分区规划</div>
+                            <div class="item">🌐 适配 Java 版</div>
+                        </div>
+                        <p class="dl-label">📥 选择网盘下载（需同意协议）</p>
+                        <div class="pan-list" id="archive-pan-list">
+                            <a href="#" class="pan-card" data-archive-download>
+                                <span class="icon">💾</span>
+                                <span class="info"><span class="name">百度网盘</span><span class="status">提取码：1234</span></span>
+                                <span class="action">点击下载 →</span>
+                            </a>
+                            <a href="#" class="pan-card" data-archive-download>
+                                <span class="icon">☁️</span>
+                                <span class="info"><span class="name">阿里云盘</span><span class="status">不限速下载</span></span>
+                                <span class="action">点击下载 →</span>
+                            </a>
+                            <a href="#" class="pan-card disabled">
+                                <span class="icon">🔗</span>
+                                <span class="info"><span class="name">夸克网盘</span><span class="status">待添加</span></span>
+                                <span class="action">敬请期待</span>
+                            </a>
+                            <a href="#" class="pan-card disabled">
+                                <span class="icon">📦</span>
+                                <span class="info"><span class="name">123云盘</span><span class="status">待添加</span></span>
+                                <span class="action">敬请期待</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 专用客户端 ===== -->
+        <section class="section" id="client">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Client</span>
+                    <h2>📦 专用客户端下载</h2>
+                    <p>为科技城存档定制的 Minecraft 客户端，集成所需模组与配置，即开即用</p>
+                </div>
+
+                <div class="panel reveal" style="max-width:760px; margin:0 auto;">
+                    <div class="info-tags">
+                        <span class="tag">📦 版本：<strong>1.20.4</strong></span>
+                        <span class="tag">💾 大小：<strong>420 MB</strong></span>
+                        <span class="tag">⚙️ 集成：<strong>优化模组 / 小地图 / 建筑辅助</strong></span>
+                    </div>
+                    <p class="desc">专用客户端包含科技城地图所需的全部模组和配置，下载后解压即可直接游玩。</p>
+                    <p class="dl-label">📥 选择网盘下载（需同意客户端协议）</p>
+                    <div class="pan-list" id="client-pan-list">
+                        <a href="#" class="pan-card" data-client-download>
+                            <span class="icon">💾</span>
+                            <span class="info"><span class="name">百度网盘</span><span class="status">提取码：1234</span></span>
+                            <span class="action">点击下载 →</span>
+                        </a>
+                        <a href="#" class="pan-card" data-client-download>
+                            <span class="icon">☁️</span>
+                            <span class="info"><span class="name">阿里云盘</span><span class="status">不限速下载</span></span>
+                            <span class="action">点击下载 →</span>
+                        </a>
+                        <a href="#" class="pan-card disabled">
+                            <span class="icon">🔗</span>
+                            <span class="info"><span class="name">夸克网盘</span><span class="status">待添加</span></span>
+                            <span class="action">敬请期待</span>
+                        </a>
+                        <a href="#" class="pan-card disabled">
+                            <span class="icon">📦</span>
+                            <span class="info"><span class="name">123云盘</span><span class="status">待添加</span></span>
+                            <span class="action">敬请期待</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 适用场景 ===== -->
+        <section class="section" id="scenarios">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Scenarios</span>
+                    <h2>🎯 适用场景</h2>
+                    <p>这张底图可以灵活用于多种 Minecraft 项目</p>
+                </div>
+
+                <div class="scenario-grid">
+                    <div class="scenario-card reveal">
+                        <span class="icon">🏰</span>
+                        <h3>服务器主城</h3>
+                        <p>作为生存服务器或小游戏服务器的中心主城，拥有现成的道路系统和建筑框架。</p>
+                    </div>
+                    <div class="scenario-card reveal reveal-delay-1">
+                        <span class="icon">🗺️</span>
+                        <h3>RPG 冒险地图底图</h3>
+                        <p>城市框架可作为 RPG 地图中的主要城镇区域，快速搭建完整冒险世界。</p>
+                    </div>
+                    <div class="scenario-card reveal reveal-delay-2">
+                        <span class="icon">🎨</span>
+                        <h3>建筑展示与教学</h3>
+                        <p>用于展示现代科技风格建筑范例，适合教学与风格参考。</p>
+                    </div>
+                    <div class="scenario-card reveal reveal-delay-3">
+                        <span class="icon">🔬</span>
+                        <h3>模组测试环境</h3>
+                        <p>为科技类模组提供合理的城市布局和空间预留。</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 使用说明 ===== -->
+        <section class="section" id="guide">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Guide</span>
+                    <h2>📋 使用说明与许可</h2>
+                    <p>请遵守以下规则，共同维护良好的创作环境</p>
+                </div>
+
+                <div class="guide-grid">
+                    <div class="reveal">
+                        <p class="lead">科技城存档是我们<strong>独立制作并免费分发</strong>的基础底图。你可以自由地在本地或服务器上使用它，也允许在<strong>保留来源署名</strong>的前提下，基于此地图进行二次创作和分发。</p>
+                        <p class="lead" style="margin-top:12px;">地图中包含预留的建筑框架和红石线路，方便你快速扩展。</p>
+                        <div class="permit-tags">
+                            <span class="tag">✅ 允许二次创作</span>
+                            <span class="tag">✅ 允许服务器使用</span>
+                            <span class="tag">⚠️ 请保留署名</span>
+                            <span class="tag">❌ 禁止商业转售</span>
+                        </div>
+                    </div>
+                    <div class="panel reveal reveal-delay-1" style="padding:26px 24px;">
+                        <h3 style="font-size:1.05rem;">📜 使用许可</h3>
+                        <p class="desc" style="margin-bottom:0;"><strong style="color:#fff;">允许：</strong><br>· 个人游玩和服务器使用<br>· 基于此地图进行建筑扩展<br>· 用于制作 RPG、冒险等衍生地图<br>· 在注明来源的情况下分享二次创作<br><br><strong style="color:#fff;">不允许：</strong><br>· 将原始存档直接用于商业销售<br>· 移除或篡改地图内的署名信息<br>· 声称此地图为你原创</p>
+                    </div>
+                </div>
+
+                <!-- 版本历史时间线 -->
+                <div class="section-header reveal" style="margin-top:70px;">
+                    <span class="section-tag">History</span>
+                    <h2>🛤️ 科技市发展历程</h2>
+                    <p>从 2015 年的远古版本到未来的重塑计划，一座方块城市的生长史</p>
+                </div>
+                <div class="timeline">
+                    <div class="timeline-item reveal">
+                        <span class="dot"></span>
+                        <div class="timeline-card">
+                            <div class="head">
+                                <div class="ver"><strong>科技市 1.0</strong><span class="badge">远古版</span></div>
+                                <span class="year">2015 · MC 1.6.4</span>
+                            </div>
+                            <p>科技市最初的一个版本：建筑简陋，风格单一，地图范围小，地图主题也不完善。一切，都从这里的一小块土地开始。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="dot"></span>
+                        <div class="timeline-card">
+                            <div class="head">
+                                <div class="ver"><strong>科技市 2.0</strong><span class="badge warn">存档丢失</span></div>
+                                <span class="year">MC 1.6.4 → 1.16.5</span>
+                            </div>
+                            <p>第一次版本更迭：没有任何内容更新，只是更新了游戏版本。该版本存档已丢失，留下的信息非常少。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="dot"></span>
+                        <div class="timeline-card">
+                            <div class="head">
+                                <div class="ver"><strong>科技市 3.0 / 3.5</strong><span class="badge">内容 +40%</span></div>
+                                <span class="year">MC 1.16.5</span>
+                            </div>
+                            <p>第二次版本更迭，比 2.0 <strong style="color:var(--accent);">增加 40% 的内容</strong>，同时更新游戏版本。3.0 曾因卡顿、闪退等问题被诟病；随后推出的 <strong style="color:#fff;">3.5</strong> 大幅度优化了游戏不稳定的问题。</p>
+                            <div class="meta">
+                                <span class="label">重大更新</span>
+                                <span>🏙️ 高新区更新</span>
+                                <span>🚇 轨道交通更新</span>
+                                <span>🌙 北暮区更新</span>
+                                <span>🏙️ 东城更新</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="dot"></span>
+                        <div class="timeline-card">
+                            <div class="head">
+                                <div class="ver"><strong>科技市 4.0</strong><span class="badge">内容 +67%</span></div>
+                                <span class="year">MC 1.18.2</span>
+                            </div>
+                            <p>第三次版本更迭：应用了 <strong style="color:#fff;">mod 预制建筑</strong>，建筑风格更加多变，内容增加 67%，游戏性能更加流畅。</p>
+                            <div class="meta">
+                                <span class="label">重大更新</span>
+                                <span>🗺️ 地图自定义命令中心更新</span>
+                                <span>🎓 教育更新</span>
+                                <span>🚈 城铁更新</span>
+                                <span>🏥 医院更新</span>
+                                <span>🌙 北暮更新</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="dot"></span>
+                        <div class="timeline-card">
+                            <div class="head">
+                                <div class="ver"><strong>科技市 5.0 - 8.0</strong><span class="badge">定制客户端</span></div>
+                                <span class="year">稳步迭代</span>
+                            </div>
+                            <p>进入稳步迭代阶段，持续打磨城市细节，并推出了<strong style="color:#fff;">定制客户端</strong>，带来开箱即用的完整体验。</p>
+                        </div>
+                    </div>
+                    <div class="timeline-item reveal">
+                        <span class="dot" style="background:#7DD3FC; border-color:rgba(125,211,252,0.25); box-shadow:0 0 12px rgba(125,211,252,0.45);"></span>
+                        <div class="timeline-card">
+                            <div class="head">
+                                <div class="ver"><strong>未来</strong><span class="badge" style="background:rgba(125,211,252,0.08); border-color:rgba(125,211,252,0.3); color:#7DD3FC;">重塑 · 赋能未来</span></div>
+                                <span class="year">敬请期待</span>
+                            </div>
+                            <p>未来代号：<strong style="color:#fff;">「重塑，赋能未来」</strong>。这座城市的故事，远未结束。</p>
+                            <div class="meta">
+                                <span class="label">计划更新</span>
+                                <span>📺 电视台更新</span>
+                                <span>⚡ 流畅更新</span>
+                                <span>✈️ 科技市机场更新</span>
+                                <span>🏭 万安产业园更新</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 关于团队 ===== -->
+        <section class="section" id="team">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Team</span>
+                    <h2>👥 关于螺旋游戏</h2>
+                    <p>生于方块，长于想象的独立创作团体</p>
+                </div>
+
+                <div class="panel team-card reveal">
+                    <div class="content">
+                        <p><span class="hl">螺旋游戏（Spiral Game）</span>，一个生于方块，长于想象的独立创作团体。我们的名字寓意着对创造与进化的无尽追求——如同螺旋，每一次延伸都基于原有的基石，却始终望向更高的维度。</p>
+                        <p>我们的灵魂之作，是历时五年以纯粹手工雕琢而成的《我的世界》综合存档——<span class="st">「科城」</span>。它不仅仅是一座城市，更是一场偏执的实践。每一处细节都承载着时间与热诚的重量。</p>
+                        <p><span class="st">「科城」</span>是我们理念的结晶：它既是拥有沉浸式叙事与精妙谜题的解密地图模版，也是功能完备、足以成为任何多人服务器璀璨核心的主城模板。我们深信，最好的创作源于对手工艺的敬畏、对玩法的深思，以及对一个世界该有灵魂的笃信。</p>
+                        <div class="quote">“最好的创作源于对手工艺的敬畏、对玩法的深思，以及对一个世界该有灵魂的笃信。”</div>
+                        <p>我们是一群相信<span class="st">“长期主义”</span>的造梦者。螺旋游戏并非庞大的商业工厂，而是一间专注的手工作坊。我们珍视与每一位玩家、地图创作者和服务器服主的连接，你们的每一次探索、每一份演绎，都是这个螺旋向上生长的新动力。</p>
+                        <p>2026 年 10 月，<span class="hl">螺旋科城基金会</span>正式成立。自即日起，《科技市》存档及客户端的后续更新、维护与发布，全部由基金会负责：所有更新免费发放，依靠社区捐赠延续，开源继续推进。</p>
+                        <p>未来，我们将继续深耕于《我的世界》的无限可能，创造更多拥有独特灵魂与扎实品质的世界。</p>
+                        <p class="closing">🚀 欢迎你，加入这场永不停歇的螺旋之旅。</p>
+                    </div>
+                    <div class="team-tags">
+                        <span class="tag">🧩 独立手工作坊</span>
+                        <span class="tag">⏳ 长期主义</span>
+                        <span class="tag">🏙️ 五年匠心打磨</span>
+                        <span class="tag">🛡️ 螺旋科城基金会</span>
+                        <span class="tag">🚀 永不停歇的螺旋之旅</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 图片鉴赏 ===== -->
+        <section class="section" id="gallery">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Gallery</span>
+                    <h2>🖼️ 图片鉴赏</h2>
+                    <p>科技城存档的精彩建筑截图、设计概念图和社区优秀作品</p>
+                </div>
+
+                <div class="panel gallery-panel reveal">
+                    <span class="icon">🛰️</span>
+                    <h3>视觉内容准备中</h3>
+                    <p>这里将展示科技城存档的精彩建筑截图、设计概念图和社区优秀作品。我们正在精心准备首批视觉内容，不久后将正式上线，感谢你的关注！</p>
+                    <div class="badge">🔧 测试中，敬请期待</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== 赞助 ===== -->
+        <section class="section" id="sponsor">
+            <div class="container">
+                <div class="section-header reveal">
+                    <span class="section-tag">Sponsor</span>
+                    <h2>☕ 支持我们</h2>
+                    <p>您的赞助将直接用于存档开发和社区运营，帮助我们创造更好的内容</p>
+                </div>
+
+                <div class="panel sponsor-card reveal">
+                    <span class="icon">🚀</span>
+                    <h3>通过引力圈赞助我们</h3>
+                    <p>引力圈是一个国际会员订阅赞助平台。在这里，你可以通过多种方式支持我们的创作，并获得专属的粉丝权益。</p>
+                    <a href="https://app.yinliquan.app/c/spge001" target="_blank" rel="noopener" class="btn-o light lg">💖 前往引力圈赞助</a>
+                    <p class="note">点击后将跳转至引力圈平台，所有赞助行为均受该平台条款约束。</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ===== 页脚 ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h4>🪐 科技城存档</h4>
+                    <ul>
+                        <li><a href="#top">首页</a></li>
+                        <li><a href="#announcements">公告</a></li>
+                        <li><a href="#archive">存档详情</a></li>
+                        <li><a href="#client">专用客户端</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>📚 资源</h4>
+                    <ul>
+                        <li><a href="#scenarios">适用场景</a></li>
+                        <li><a href="#guide">使用说明</a></li>
+                        <li><a href="#team">关于团队</a></li>
+                        <li><a href="#gallery">图片鉴赏</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>🔗 相关链接</h4>
+                    <ul>
+                        <li><a href="https://www.minecraft.net" target="_blank" rel="noopener">Minecraft 官网</a></li>
+                        <li><a href="https://pages.github.com" target="_blank" rel="noopener">GitHub Pages</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>📧 联系我们</h4>
+                    <ul>
+                        <li><a href="mailto:kjsofficial@foxmail.com">客服邮箱</a></li>
+                        <li><a href="mailto:kjsofficial@foxmail.com">商务合作</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 <a href="#top">科技城存档</a> · 构建方：螺旋科城基金会</p>
+                <p class="tiny">© 2026 Spiral Kecheng Foundation · Minecraft 标志属于 Mojang Studios</p>
+            </div>
+        </div>
+    </footer>
+
+    <button class="back-top" id="back-top" aria-label="回到顶部">↑</button>
+
+    <!-- ===== 存档协议模态框 ===== -->
+    <div class="modal-overlay" id="agreement-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>《科技市》存档用户协议</h3>
+                <button class="modal-close" id="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>前言</strong><br>本协议由《科技市》Minecraft存档（以下简称"本存档"）的开发者螺旋游戏（以下简称"创作者"）与您（以下简称"用户"）之间就本存档的使用、传播、二次创作及相关社区行为所订立。下载、安装或使用本存档即表示您同意接受本协议的全部约束。请在使用前仔细阅读。</p>
+                <h4>一、 知识产权与关联声明</h4>
+                <p><strong>1.1</strong> 游戏权利声明：《我的世界》游戏本体、商标及相关内容的完整知识产权归属于 Mojang Studios、Microsoft 及/或其授权方（中国区为网易游戏）。本协议不影响上述主体的任何权利。</p>
+                <p><strong>1.2</strong> 存档权利归属：本存档为独立创作内容，包含所有原创建筑、红石装置及衍生作品，其知识产权归创作者所有。</p>
+                <p><strong>1.3</strong> 重要独立性声明：本存档及创作者与 Mojang Studios、Microsoft 及网易游戏无任何隶属、授权、赞助或代言关系，仅为基于《我的世界》平台的用户生成内容。</p>
+                <h4>二、 授权范围</h4>
+                <p><strong>2.1 免费使用许可（非商业用途）</strong><br>用户可在遵守以下条款的前提下免费使用本存档：</p>
+                <ul>
+                    <li>个人娱乐与游玩</li>
+                    <li>在非商业服务器中与朋友共同体验</li>
+                    <li>制作游戏视频、直播（建议标注存档来源）</li>
+                    <li>为个人学习、研究目的进行修改与适配</li>
+                </ul>
+                <p><strong>2.2 商业使用授权</strong><br>如计划将本存档或其衍生内容用于任何商业用途（包括直接收费或间接获利），必须事先获得创作者的书面授权。</p>
+                <ul>
+                    <li>游戏内商业使用（如运营收费服务器、制作并销售付费地图/模组包等）：须向创作者提出授权申请，授权条款（包括是否收费）将根据具体使用场景、规模及期限另行约定。</li>
+                    <li>游戏外商业使用（如开发实体周边、举办商业展览、进行跨媒介改编等）：须与创作者协商并签订独立的付费商业授权协议。</li>
+                    <li>授权申请请通过本协议末尾的联系方式提出。</li>
+                </ul>
+                <p><strong>2.3 二次创作与传播</strong></p>
+                <ul>
+                    <li>允许基于本存档进行二次创作，但付费公开发布时必须明确标注"基于《科技市》存档"</li>
+                    <li>禁止将本存档或修改版本重新打包，声称为原创作品</li>
+                </ul>
+                <h4>三、 赞助支持计划</h4>
+                <p><strong>3.1 赞助性质</strong><br>赞助为完全自愿的支持行为，不构成购买、投资或商业合作，不获得任何知识产权授权。</p>
+                <p><strong>3.2 赞助方式</strong></p>
+                <ul>
+                    <li>一次性捐赠：通过指定平台进行单次支持</li>
+                    <li>周期性订阅：通过会员渠道进行定期支持（可随时取消）</li>
+                </ul>
+                <p><strong>3.3 赞助者回馈（以实际提供为准）</strong><br>为感谢支持，赞助者可享有以下非商业回馈：</p>
+                <ul>
+                    <li>名称列入存档内"赞助者名单"（如适用）</li>
+                    <li>优先体验测试版本与后续衍生内容</li>
+                    <li>专属社区身份标识</li>
+                    <li>特别版资源或数字特典</li>
+                </ul>
+                <p><strong>3.4 赞助服务器特权</strong><br>赞助后在官方服务器游玩的用户，在符合本协议前提下，可额外获得：</p>
+                <ul>
+                    <li>服务器技术问题优先响应</li>
+                    <li>可申请定制化功能适配（需另行协商）</li>
+                    <li>在官方社区展示服务器信息（可选）</li>
+                    <li>获取专属特权</li>
+                </ul>
+                <p><strong>3.5 资金用途与退款说明</strong></p>
+                <ul>
+                    <li>赞助资金将全部用于存档开发、服务器维护及社区运营</li>
+                    <li>除支付平台技术故障导致的重复扣款外，赞助完成后不予退款</li>
+                    <li>周期性赞助可随时取消，已支付费用不退还</li>
+                </ul>
+                <p><strong>3.6 重要区分</strong><br>赞助不等同于商业使用授权。任何商业用途，无论是否赞助，都必须另行申请授权。</p>
+                <h4>四、 使用规范</h4>
+                <p><strong>4.1 允许行为</strong></p>
+                <ul>
+                    <li>个人学习、研究、欣赏与体验</li>
+                    <li>在视频、直播中展示并标注来源</li>
+                    <li>为适配个人体验进行必要修改</li>
+                    <li>在教育场景中使用（须标注来源并控制收费）</li>
+                </ul>
+                <p><strong>4.2 禁止行为</strong><br>包括但不限于：</p>
+                <ul>
+                    <li>逆向工程、反编译或恶意篡改</li>
+                    <li>冒充官方或与官方有关联</li>
+                    <li>用于任何违法、破坏公序良俗的内容</li>
+                    <li>未经授权的商业使用与盈利行为</li>
+                    <li>数据爬取、批量下载或干扰服务</li>
+                </ul>
+                <h4>五、 社区参与规范</h4>
+                <p>5.1 参与本存档相关社区须遵守社区规则，文明交流。</p>
+                <p>5.2 社区管理员有权对违规行为进行处理，并可能建立黑名单机制。</p>
+                <h4>六、 隐私与数据</h4>
+                <ul>
+                    <li>本存档本身不收集任何用户个人信息</li>
+                    <li>配套工具或服务如有数据收集将单独说明并遵守相关法律</li>
+                    <li>使用过程中涉及的第三方平台（如游戏启动器、社区平台）受其各自隐私政策约束</li>
+                </ul>
+                <h4>七、 免责声明</h4>
+                <ul>
+                    <li>本存档按"原样"提供，创作者不保证其完整性、无错误或适用于特定目的</li>
+                    <li>因游戏版本更新导致的兼容性问题，创作者不承担责任，用户须自行备份</li>
+                    <li>使用本存档可能产生的任何直接或间接损失，创作者不承担法律责任</li>
+                </ul>
+                <h4>八、 违约责任</h4>
+                <p>用户如有违约，创作者有权要求：</p>
+                <ul>
+                    <li>立即停止侵权行为</li>
+                    <li>删除或下架相关侵权内容</li>
+                    <li>将用户列入社区黑名单</li>
+                    <li>若用户的违约行为对创作者的商誉造成实际损害的，创作者有权要求其赔偿相应的商誉损失。</li>
+                </ul>
+                <h4>九、 协议修改与终止</h4>
+                <ul>
+                    <li>创作者有权修订本协议，修订后公布即生效</li>
+                    <li>用户可随时通过停止使用并删除存档终止协议</li>
+                    <li>创作者可在用户严重违约时终止其使用权限</li>
+                </ul>
+                <h4>十、 争议解决与法律适用</h4>
+                <ul>
+                    <li>本协议适用中华人民共和国法律</li>
+                    <li>争议首先通过友好协商解决</li>
+                    <li>协商不成的，任何一方可向创作者所在地有管辖权的人民法院提起诉讼</li>
+                </ul>
+                <h4>十一、 其他约定</h4>
+                <p>11.1 未成年人使用：建议在监护人指导下使用本存档。</p>
+                <p>11.2 教育用途：教育机构使用时须明确标注来源及非官方性质，不得超额收费，建议提前告知创作者。</p>
+                <p>11.3 二次创作鼓励：欢迎基于本存档制作视频、直播等二次创作，优秀作品可加入官方创作者计划获取支持。</p>
+                <p>11.4 存档安全：用户应自行备份存档，创作者不对存档损坏或丢失负责。</p>
+                <h4>十二、 联系方式</h4>
+                <ul>
+                    <li>授权申请、合作联系、问题反馈：kjsofficial@foxmail.com</li>
+                    <li>协议版本：v1.2</li>
+                    <li>最后更新：2026年1月4日</li>
+                    <li>生效日期：2026年1月4日</li>
+                </ul>
+                <p><strong>协议确认</strong><br>下载、安装或使用本存档，即视为您已完整阅读、理解并同意本协议全部内容，包括未来修订版本。如不同意，请立即停止使用并删除本存档所有文件。</p>
+            </div>
+            <div class="modal-footer">
+                <label class="agreement-check">
+                    <input type="checkbox" id="agreement-checkbox"> 我已阅读并同意《科技市》存档用户协议
+                </label>
+                <div class="modal-actions">
+                    <button class="btn-cancel" id="modal-cancel">取消</button>
+                    <button class="btn-confirm" id="modal-confirm" disabled>同意并下载</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 客户端协议模态框 ===== -->
+    <div class="modal-overlay" id="client-agreement-modal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3>《科技市》定制客户端用户协议与隐私政策</h3>
+                <button class="modal-close" id="client-modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p><strong>重要提示：</strong> 本客户端为《科技市》存档专用工具，是运行该存档的必备组件。使用本客户端，即表示您同时同意受本协议及《科技市存档用户协议》（完整文本可通过官方页面存档下载页面查阅）的全部条款约束。若您不同意其中任何协议，请勿使用本客户端。</p>
+                <h4>一、 许可授权</h4>
+                <p><strong>1.1 有限使用许可</strong></p>
+                <p>授予已获得《科技市》存档使用权限的用户一项不可转让、不可再分发的有限许可：</p>
+                <ul>
+                    <li>唯一用途：仅用于运行、配置、管理《科技市》存档</li>
+                    <li>严格限制：禁止用于任何商业用途</li>
+                    <li>分发禁止：严禁以任何形式对外分发、共享、重新打包本客户端</li>
+                </ul>
+                <p><strong>1.2 离线版本特别条款</strong></p>
+                <ul>
+                    <li>特定场景：离线版本仅为方便网络环境受限时部署存档的备用方案</li>
+                    <li>使用前提：用户应优先使用在线版本获取正版验证与安全更新</li>
+                    <li>责任自担：离线模式下手动导入的模组/资源需用户自行确保安全性</li>
+                </ul>
+                <h4>二、 使用限制</h4>
+                <p><strong>2.1 严格禁止</strong></p>
+                <ul>
+                    <li>将本客户端或其修改版本提供给任何第三方</li>
+                    <li>解包、反编译、逆向工程（法律允许的除外）</li>
+                    <li>移除修改签名、冒充官方版本</li>
+                    <li>植入广告、恶意代码或用于任何破坏性目的</li>
+                    <li>利用本客户端规避 Minecraft 正版验证</li>
+                </ul>
+                <p><strong>2.2 唯一例外</strong></p>
+                <p>仅允许在以下情况分享离线版本：</p>
+                <ul>
+                    <li>向已获得《科技市》存档使用授权的团队成员分享，用于合作开发</li>
+                    <li>分享范围不得超过存档授权明确覆盖的人员数量</li>
+                    <li>必须附带本协议全文，并确保接收方知晓保密义务</li>
+                </ul>
+                <h4>三、 开源合规</h4>
+                <p><strong>3.1 基础组件</strong></p>
+                <ul>
+                    <li>本客户端基于开源项目 PCL2（遵循 GPL-3.0 协议）修改</li>
+                    <li>开源代码部分的权利义务遵循原始许可证</li>
+                    <li>项目源码将依据 GPL 要求进行合规处理</li>
+                </ul>
+                <p><strong>3.2 修改声明</strong></p>
+                <ul>
+                    <li>我们对 PCL2 进行的定制化修改主要为：</li>
+                    <li>预配置《科技市》存档运行环境</li>
+                    <li>集成必要的兼容性组件</li>
+                    <li>优化资源加载逻辑</li>
+                    <li>添加离线部署模式</li>
+                    <li>完整修改记录可根据开源协议要求提供</li>
+                </ul>
+                <h4>四、 责任限制</h4>
+                <p>4.1 除因开发者故意或重大过失直接导致的损失外，开发者不对因以下情况引发的任何损害承担责任：</p>
+                <ul>
+                    <li>使用非官方渠道获取的客户端版本；</li>
+                    <li>在离线模式下自行导入的模组导致的崩溃、存档损坏；</li>
+                    <li>违反《Minecraft》EULA 导致的账号封禁；</li>
+                    <li>网络环境问题导致的更新失败；</li>
+                    <li>硬件不兼容或系统配置不当。</li>
+                </ul>
+                <p>4.2 在法律允许的最大范围内，本客户端按"现状"提供，开发者不提供任何明示或默示的担保，包括但不限于：适用于所有操作系统版本、与所有第三方模组完全兼容、完全无错误或未来永久免费更新。</p>
+                <h4>五、 终止条款</h4>
+                <p><strong>5.1 协议终止</strong></p>
+                <p>如有以下情况，本协议自动终止：</p>
+                <ul>
+                    <li>用户违反《科技市存档用户协议》</li>
+                    <li>用户对外分发本客户端</li>
+                    <li>用户使用本客户端从事任何违法活动</li>
+                </ul>
+                <p><strong>5.2 终止后果</strong></p>
+                <p>协议终止后，用户必须：</p>
+                <ul>
+                    <li>立即停止使用本客户端</li>
+                    <li>删除所有副本及相关文件</li>
+                    <li>如为团队使用，确保所有成员同步执行</li>
+                </ul>
+                <h4>六、 合规义务</h4>
+                <p>6.1 协议体系与遵守：使用本客户端即表示您同意，您的行为将同时受到以下一系列协议（合称"相关协议"）的约束：</p>
+                <ul>
+                    <li>(a) 本协议（即《科技市定制客户端用户协议》）；</li>
+                    <li>(b) 《科技市存档用户协议》（定义及文本获取方式见本协议开头重要提示）；</li>
+                    <li>(c) 《Minecraft 最终用户许可协议》（EULA）；</li>
+                    <li>(d) PCL2 启动器所适用的开源许可证及相关协议。</li>
+                </ul>
+                <p>6.2 内部协议冲突解决：若 (a) 项与 (b) 项协议（即本客户端协议与存档协议）的条款发生直接冲突，应按以下规则确定优先适用顺序：</p>
+                <ul>
+                    <li>涉及客户端的安装、使用、功能限制、技术免责、隐私政策及本协议特有规定的，以本协议 (a 项) 为准；</li>
+                    <li>涉及存档的授权性质（商业/非商业）、知识产权归属、二次创作规则、社区规范及存档特有规定的，以《科技市存档用户协议》(b 项) 为准。</li>
+                </ul>
+                <p>6.3 外部协议遵守：您有义务自行了解并遵守 (c) 项与 (d) 项协议（即 Minecraft 及 PCL2 协议）。本客户端的存在与提供不构成对上述任何第三方协议的替代或修改。因您违反 (c) 项或 (d) 项协议导致的任何后果（如账号封禁、法律责任），由您自行承担。</p>
+                <h4>七、 违约处理</h4>
+                <p>7.1 如有证据表明用户违反本协议，开发者有权采取以下一项或多项措施：</p>
+                <ul>
+                    <li>撤销该用户客户端的全部使用权限；</li>
+                    <li>终止其相关的《科技市》存档使用授权；</li>
+                    <li>将用户列入项目黑名单。</li>
+                </ul>
+                <p>7.2 若用户的违约行为给开发者造成直接经济损失的，开发者有权要求其赔偿该等损失及为维权而支出的合理费用（如律师费、公证费）。</p>
+                <h4>八、 联系方式</h4>
+                <ul>
+                    <li>可处理客户端相关问题：邮箱：kjsofficial@foxmail.com【注明问题】</li>
+                </ul>
+                <hr>
+                <h3>《科技市》定制客户端隐私政策</h3>
+                <p><strong>适用客户端：</strong> 《科技市》专用定制启动器（基于开源 PCL2 修改版）</p>
+                <h4>一、 数据收集声明</h4>
+                <p>本客户端不收集、不上传、不存储任何用户个人信息。具体说明如下：</p>
+                <ul>
+                    <li>本地操作原则：所有游戏配置、存档文件、模组加载均发生在用户本地计算机，无任何数据上报、统计或分析功能，无用户行为追踪机制。</li>
+                    <li>离线模式特性：离线版本已预置必要运行环境，可在网络连接不佳情况下部署《科技市》客户端。离线模式下所有操作均为本地处理，无任何外部通信。</li>
+                    <li>网络功能说明（如启用）：仅在用户明确选择"在线更新"时，才会连接至官方指定源检查更新。更新过程仅传输版本元数据及必要文件，不涉及用户个人信息。</li>
+                </ul>
+                <h4>二、 第三方服务</h4>
+                <ul>
+                    <li>开源组件：本客户端基于开源项目 PCL2 启动器修改，遵循其原有开源协议。基础启动器组件的隐私实践遵循原项目规范。</li>
+                    <li>游戏服务：登录、正版验证等操作由 Mojang/Microsoft 官方服务处理。相关隐私政策请参阅《Microsoft 隐私声明》及《Minecraft 最终用户许可协议》。</li>
+                </ul>
+                <h4>三、 数据安全</h4>
+                <ul>
+                    <li>本地存储：游戏文件、配置信息均存储于用户本地设备。建议用户定期备份重要存档，开发者不对数据丢失负责。</li>
+                    <li>安全提醒：请从唯一官方渠道获取本客户端。警惕任何要求输入账号密码的第三方修改版本。</li>
+                </ul>
+                <h4>四、 儿童隐私</h4>
+                <p>本客户端本身不收集任何年龄用户的信息。未成年人使用时应遵守游戏平台的年龄限制规定。</p>
+                <h4>五、 政策更新</h4>
+                <p>本政策可能随客户端更新而修订，重大变更将在启动界面提示。</p>
+                <p><strong>协议生效：</strong> 启动客户端时点击确认，即视为您同意本隐私政策及《科技市定制客户端用户协议》。如不同意，请立即删除客户端所有文件。</p>
+                <p style="margin-top:8px; color:var(--text-muted); font-size:0.75rem;">· 协议版本：V1.2 · 修改日期：2026-01-04 · 生效日期：2026-01-04</p>
+            </div>
+            <div class="modal-footer">
+                <label class="agreement-check">
+                    <input type="checkbox" id="client-agreement-checkbox"> 我已阅读并同意《科技市》定制客户端用户协议与隐私政策
+                </label>
+                <div class="modal-actions">
+                    <button class="btn-cancel" id="client-modal-cancel">取消</button>
+                    <button class="btn-confirm" id="client-modal-confirm" disabled>同意并下载</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 公告数据（与详情页共用） -->
+    <script src="data/announcements.js?v=14"></script>
+
+    <script>
+        // ===== 星空生成 =====
+        (function() {
+            const sf = document.getElementById('starfield');
+            const frag = document.createDocumentFragment();
+            for (let i = 0; i < 110; i++) {
+                const s = document.createElement('div');
+                s.className = 'star';
+                const size = Math.random() < 0.85 ? 1.5 : 2.5;
+                s.style.width = size + 'px';
+                s.style.height = size + 'px';
+                s.style.left = (Math.random() * 100) + '%';
+                s.style.top = (Math.random() * 72) + '%';
+                s.style.setProperty('--d', (2.5 + Math.random() * 5).toFixed(2) + 's');
+                s.style.setProperty('--o', (0.25 + Math.random() * 0.65).toFixed(2));
+                s.style.animationDelay = (-Math.random() * 6).toFixed(2) + 's';
+                frag.appendChild(s);
+            }
+            // 紫色四角星
+            const sparklePos = [[8, 22], [16, 46], [30, 12], [55, 6], [72, 18], [86, 38], [92, 12], [42, 30]];
+            sparklePos.forEach(function(p, i) {
+                const sp = document.createElement('div');
+                sp.className = 'sparkle';
+                const size = 9 + Math.random() * 8;
+                sp.style.width = size + 'px';
+                sp.style.height = size + 'px';
+                sp.style.left = p[0] + '%';
+                sp.style.top = p[1] + '%';
+                sp.style.setProperty('--d', (3 + Math.random() * 4).toFixed(2) + 's');
+                sp.style.animationDelay = (-i * 1.3).toFixed(2) + 's';
+                frag.appendChild(sp);
+            });
+            sf.appendChild(frag);
+        })();
+
+        // ===== 导航栏交互 =====
+        const navbar = document.getElementById('navbar');
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('nav-menu');
+        const backTop = document.getElementById('back-top');
+
+        window.addEventListener('scroll', function() {
+            navbar.classList.toggle('scrolled', window.scrollY > 40);
+            backTop.classList.toggle('visible', window.scrollY > 400);
+        }, { passive: true });
+
+        hamburger.addEventListener('click', function() {
+            this.classList.toggle('active');
+            navMenu.classList.toggle('open');
+        });
+        document.addEventListener('click', function(e) {
+            if (navMenu.classList.contains('open') && !e.target.closest('.navbar')) {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('open');
+            }
+        });
+        navMenu.querySelectorAll('a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                hamburger.classList.remove('active');
+                navMenu.classList.remove('open');
+            });
+        });
+        backTop.addEventListener('click', function() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // ===== 滚动入场 =====
+        (function() {
+            const revealEls = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window)) {
+                revealEls.forEach(function(el) { el.classList.add('visible'); });
+                return;
+            }
+            const revealObserver = new IntersectionObserver(function(entries) {
+                entries.forEach(function(entry) {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        revealObserver.unobserve(entry.target);
+                    }
+                });
+            }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+            revealEls.forEach(function(el) { revealObserver.observe(el); });
+        })();
+
+        // ===== 公告列表渲染 =====
+        (function() {
+            const listEl = document.getElementById('announce-list');
+            if (typeof announcements === 'undefined' || !Array.isArray(announcements)) {
+                listEl.innerHTML = '<div class="search-result-empty">⚠️ 公告数据加载失败，请检查 data/announcements.js</div>';
+                return;
+            }
+            const sorted = announcements.slice().sort(function(a, b) { return b.id - a.id; });
+            let html = '';
+            sorted.forEach(function(item) {
+                const plain = item.body.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+                const excerpt = plain.length > 76 ? plain.slice(0, 76) + '…' : plain;
+                html += '<a href="announcement.html?id=' + item.id + '" class="announce-card">' +
+                    '<div class="meta">' + item.date + '</div>' +
+                    '<h3>' + item.title + '</h3>' +
+                    '<p class="excerpt">' + excerpt + '</p>' +
+                    '<span class="more">阅读全文 →</span>' +
+                    '</a>';
+            });
+            listEl.innerHTML = html;
+        })();
+
+        // ============================================================
+        // ===== 站内搜索 =====
+        // ============================================================
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('search-results');
+
+        let filesIndex = [];
+        fetch('data/files.json')
+            .then(function(r) { return r.json(); })
+            .then(function(data) { filesIndex = data; })
+            .catch(function() { filesIndex = []; });
+
+        function performSearch(query) {
+            const trimmed = query.trim().toLowerCase();
+            if (!trimmed) {
+                resultsContainer.classList.remove('active');
+                return;
+            }
+            const results = [];
+            if (typeof announcements !== 'undefined' && Array.isArray(announcements)) {
+                announcements.forEach(function(item) {
+                    const plainBody = item.body.replace(/<[^>]+>/g, '');
+                    const titleMatch = item.title.toLowerCase().includes(trimmed);
+                    const bodyMatch = plainBody.toLowerCase().includes(trimmed);
+                    if (titleMatch || bodyMatch) {
+                        results.push({
+                            type: '公告',
+                            title: item.title,
+                            sub: item.date,
+                            match: titleMatch ? item.title : plainBody.substring(0, 80) + '...',
+                            link: 'announcement.html?id=' + item.id
+                        });
+                    }
+                });
+            }
+            filesIndex.forEach(function(file) {
+                const nameMatch = file.name.toLowerCase().includes(trimmed);
+                const descMatch = file.description && file.description.toLowerCase().includes(trimmed);
+                if (nameMatch || descMatch) {
+                    results.push({
+                        type: '文件',
+                        title: file.name,
+                        sub: file.description || '',
+                        match: file.name,
+                        link: file.path
+                    });
+                }
+            });
+            if (results.length === 0) {
+                resultsContainer.innerHTML = '<div class="search-result-empty">没有找到相关结果</div>';
+                resultsContainer.classList.add('active');
+                return;
+            }
+            let html = '';
+            results.forEach(function(item) {
+                html += '<a href="' + item.link + '" class="search-result-item" target="' + (item.type === '文件' ? '_blank' : '_self') + '">' +
+                    '<span class="title">' + item.title + '</span>' +
+                    '<span class="sub">' + item.type + ' · ' + item.sub + '</span>' +
+                    '<span class="match">' + item.match + '</span>' +
+                    '</a>';
+            });
+            resultsContainer.innerHTML = html;
+            resultsContainer.classList.add('active');
+        }
+
+        let debounceTimer;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(debounceTimer);
+            const val = this.value;
+            debounceTimer = setTimeout(function() { performSearch(val); }, 200);
+        });
+        searchInput.addEventListener('blur', function() {
+            setTimeout(function() { resultsContainer.classList.remove('active'); }, 200);
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.search-wrap')) {
+                resultsContainer.classList.remove('active');
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                resultsContainer.classList.remove('active');
+                searchInput.blur();
+            }
+        });
+
+        // ============================================================
+        // ===== 协议弹窗（存档 + 客户端，通用逻辑） =====
+        // ============================================================
+        function bindAgreementModal(opts) {
+            const modal = document.getElementById(opts.modalId);
+            const closeBtn = document.getElementById(opts.closeId);
+            const cancelBtn = document.getElementById(opts.cancelId);
+            const confirmBtn = document.getElementById(opts.confirmId);
+            const checkbox = document.getElementById(opts.checkboxId);
+            const panList = document.getElementById(opts.panListId);
+            let pendingUrl = '';
+
+            function openModal(url) {
+                pendingUrl = url || 'https://pan.baidu.com/s/示例链接';
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                checkbox.checked = false;
+                confirmBtn.classList.remove('enabled');
+                confirmBtn.disabled = true;
+            }
+            function closeModal() {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                pendingUrl = '';
+            }
+
+            panList.addEventListener('click', function(e) {
+                const link = e.target.closest('a.pan-card');
+                if (!link || link.classList.contains('disabled')) return;
+                e.preventDefault();
+                const url = link.getAttribute('href');
+                openModal(url && url !== '#' ? url : null);
+            });
+
+            checkbox.addEventListener('change', function() {
+                confirmBtn.classList.toggle('enabled', this.checked);
+                confirmBtn.disabled = !this.checked;
+            });
+
+            confirmBtn.addEventListener('click', function() {
+                if (pendingUrl) {
+                    window.open(pendingUrl, '_blank');
+                    closeModal();
+                }
+            });
+
+            closeBtn.addEventListener('click', closeModal);
+            cancelBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+            });
+        }
+
+        bindAgreementModal({
+            modalId: 'agreement-modal',
+            closeId: 'modal-close',
+            cancelId: 'modal-cancel',
+            confirmId: 'modal-confirm',
+            checkboxId: 'agreement-checkbox',
+            panListId: 'archive-pan-list'
+        });
+
+        bindAgreementModal({
+            modalId: 'client-agreement-modal',
+            closeId: 'client-modal-close',
+            cancelId: 'client-modal-cancel',
+            confirmId: 'client-modal-confirm',
+            checkboxId: 'client-agreement-checkbox',
+            panListId: 'client-pan-list'
+        });
+    </script>
+</body>
+</html>
